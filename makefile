@@ -13,17 +13,30 @@ OBJS = $(SRCS:%.c=$(OBJDIR)/%.o)
 
 TARGET = libchacha.a
 
+ifeq ($(OS),Windows_NT)
+    RM = del /f /q
+    MKDIR = mkdir
+else
+    RM = rm -f
+    MKDIR = mkdir -p
+endif
+
 all: $(TARGET)
 
 $(TARGET): $(OBJS)
 	ar rcs $@ $^
 
 $(OBJDIR)/%.o: %.c | $(OBJDIR)
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -O0 -c $< -o $@
 
 $(OBJDIR):
-	mkdir $(OBJDIR)
+	$(MKDIR) $(OBJDIR)
 
 clean:
-	del /f /q $(OBJDIR)
-	del /f /q libchacha.a
+ifeq ($(OS),Windows_NT)
+	$(RM) $(OBJDIR)\*.o
+	$(RM) $(TARGET)
+else
+	$(RM) $(OBJDIR)/*.o
+	$(RM) $(TARGET)
+endif
